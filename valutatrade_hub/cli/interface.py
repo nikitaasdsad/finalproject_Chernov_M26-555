@@ -1,6 +1,11 @@
-import shlex
+﻿import shlex
 
 from valutatrade_hub.core import usecases
+from valutatrade_hub.core.exceptions import (
+    ApiRequestError,
+    CurrencyNotFoundError,
+    InsufficientFundsError,
+)
 
 
 def parse_arguments(arguments: list[str]) -> dict[str, str]:
@@ -79,6 +84,7 @@ def main() -> None:
     while True:
         try:
             command = input("> ").strip()
+
             if command == "help":
                 print(
                     "register --username NAME --password PASS\n"
@@ -95,6 +101,20 @@ def main() -> None:
 
             if result:
                 print(result)
+
+        except InsufficientFundsError as error:
+            print(error)
+
+        except CurrencyNotFoundError as error:
+            print(error)
+            print(
+                "Введите help для просмотра команд и поддерживаемых валют: "
+                "USD, EUR, GBP, RUB, BTC, ETH"
+            )
+
+        except ApiRequestError as error:
+            print(error)
+            print("Попробуйте повторить запрос позже.")
 
         except (ValueError, KeyError, TypeError) as error:
             print(f"Ошибка: {error}")

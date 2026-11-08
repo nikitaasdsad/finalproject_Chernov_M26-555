@@ -77,9 +77,7 @@ class User:
         if not isinstance(password, str):
             return False
 
-        hashed = hashlib.sha256(
-            (password + self._salt).encode("utf-8")
-        ).hexdigest()
+        hashed = hashlib.sha256((password + self._salt).encode("utf-8")).hexdigest()
 
         return hmac.compare_digest(hashed, self._hashed_password)
 
@@ -92,55 +90,57 @@ class User:
 
 
 class Wallet:
-        def __init__(self, currency_code: str, balance: float = 0.0) -> None:
-            if not isinstance(currency_code, str) or not currency_code.strip():
-                raise ValueError("Код валюты не может быть пустым")
+    def __init__(self, currency_code: str, balance: float = 0.0) -> None:
+        if not isinstance(currency_code, str) or not currency_code.strip():
+            raise ValueError("Код валюты не может быть пустым")
 
-            self.currency_code = currency_code.strip().upper()
-            self.balance = balance
+        self.currency_code = currency_code.strip().upper()
+        self.balance = balance
 
-        @property
-        def balance(self) -> float:
-            return self._balance
+    @property
+    def balance(self) -> float:
+        return self._balance
 
-        @balance.setter
-        def balance(self, value: float) -> None:
-            if isinstance(value, bool) or not isinstance(value, (int, float)):
-                raise TypeError("Баланс должен быть числом")
+    @balance.setter
+    def balance(self, value: float) -> None:
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise TypeError("Баланс должен быть числом")
 
-            if not math.isfinite(value):
-                raise ValueError("Баланс должен быть конечным числом")
+        if not math.isfinite(value):
+            raise ValueError("Баланс должен быть конечным числом")
 
-            if value < 0:
-                raise ValueError("Баланс не может быть отрицательным")
+        if value < 0:
+            raise ValueError("Баланс не может быть отрицательным")
 
-            self._balance = float(value)
+        self._balance = float(value)
 
-        @staticmethod
-        def _validate_amount(amount: float) -> None:
-            if isinstance(amount, bool) or not isinstance(amount, (int, float)):
-                raise TypeError("Сумма должна быть числом")
+    @staticmethod
+    def _validate_amount(amount: float) -> None:
+        if isinstance(amount, bool) or not isinstance(amount, (int, float)):
+            raise TypeError("Сумма должна быть числом")
 
-            if not math.isfinite(amount) or amount <= 0:
-                raise ValueError("Сумма должна быть положительной")
+        if not math.isfinite(amount) or amount <= 0:
+            raise ValueError("Сумма должна быть положительной")
 
-        def deposit(self, amount: float) -> None:
-            self._validate_amount(amount)
-            self.balance += amount
+    def deposit(self, amount: float) -> None:
+        self._validate_amount(amount)
+        self.balance += amount
 
-        def withdraw(self, amount: float) -> None:
-            self._validate_amount(amount)
+    def withdraw(self, amount: float) -> None:
+        self._validate_amount(amount)
 
-            if amount > self.balance:
-                raise ValueError("Недостаточно средств")
+        if amount > self.balance:
+            raise ValueError("Недостаточно средств")
 
-            self.balance -= amount
+        self.balance -= amount
 
-        def get_balance_info(self) -> dict:
-            return {
-                "currency_code": self.currency_code,
-                "balance": self.balance,
-            }
+    def get_balance_info(self) -> dict:
+        return {
+            "currency_code": self.currency_code,
+            "balance": self.balance,
+        }
+
+
 class Portfolio:
     exchange_rates: ClassVar[dict[str, float]] = {
         "USD": 1.0,
