@@ -1,0 +1,264 @@
+﻿**********************
+Начало записи сценария Windows PowerShell
+Время начала: 20261108184607
+Имя пользователя: DESKTOP-I40ACL1\neket
+Запуск от имени пользователя: DESKTOP-I40ACL1\neket
+Имя конфигурации: 
+Компьютер: DESKTOP-I40ACL1 (Microsoft Windows NT 10.0.26200.0)
+Ведущее приложение: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+ИД процесса: 29916
+PSVersion: 5.1.26100.9711
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9711
+BuildVersion: 10.0.26100.9711
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Транскрибирование запущено, выходной файл .\demo.txt
+PS D:\dz2\final\finalproject_Chernov_M26-555> uv run python main.py
+ValutaTrade Hub
+Введите help для списка команд или exit для выхода
+> register --username demo_user --password Demo1234
+Пользователь 'demo_user' зарегистрирован (id=2). Войдите: login
+> exit
+До свидания!
+PS D:\dz2\final\finalproject_Chernov_M26-555> powershell -NoProfile -ExecutionPolicy Bypass -File .\prepare_demo.ps1
+Портфель пользователя не найден
+PS D:\dz2\final\finalproject_Chernov_M26-555> Get-Content .\data\portfolios.json -Raw
+[
+    {
+        "user_id": 1,
+        "wallets": {}
+    },
+    {
+        "user_id": 2,
+        "wallets": {}
+    }
+]
+PS D:\dz2\final\finalproject_Chernov_M26-555> @'
+$ErrorActionPreference = "Stop"
+
+$users = @(Get-Content ".\data\users.json" -Raw | ConvertFrom-Json)
+$user = $users | Where-Object { $_.username -eq "demo_user" }
+
+if ($null -eq $user) {
+    Write-Host "Пользователь demo_user не найден" -ForegroundColor Red
+    exit 1
+}
+
+$portfolios = @(Get-Content ".\data\portfolios.json" -Raw | ConvertFrom-Json)
+$portfolio = $portfolios | Where-Object { [string]$_.user_id -eq [string]$user.user_id }
+
+if ($null -eq $portfolio) {
+    Write-Host "Портфель пользователя с ID $($user.user_id) не найден" -ForegroundColor Red
+    exit 1
+}
+
+$portfolio.wallets = [PSCustomObject]@{
+    USD = [PSCustomObject]@{
+        balance = 100000
+    }
+}
+
+$portfolios | ConvertTo-Json -Depth 10 | Set-Content ".\data\portfolios.json" -Encoding utf8
+
+Write-Host "Баланс пользователя demo_user успешно установлен: 100000 USD" -ForegroundColor Green
+'@ | Set-Content ".\prepare_demo.ps1" -Encoding utf8
+PS D:\dz2\final\finalproject_Chernov_M26-555> powershell -NoProfile -ExecutionPolicy Bypass -File .\prepare_demo.ps1
+
+PS D:\dz2\final\finalproject_Chernov_M26-555> cd D:\dz2\final\finalproject_Chernov_M26-555
+PS D:\dz2\final\finalproject_Chernov_M26-555> @'
+$ErrorActionPreference = "Stop"
+
+$users = @(Get-Content ".\data\users.json" -Raw | ConvertFrom-Json)
+$user = $users | Where-Object { $_.username -eq "demo_user" } | Select-Object -First 1
+
+if ($null -eq $user) {
+    Write-Host "Пользователь demo_user не найден" -ForegroundColor Red
+    exit 1
+}
+
+$portfolios = @(Get-Content ".\data\portfolios.json" -Raw | ConvertFrom-Json)
+
+$portfolio = $portfolios | Where-Object {
+    [string]$_.user_id -eq [string]$user.user_id
+} | Select-Object -First 1
+
+if ($null -eq $portfolio) {
+    Write-Host "Портфель пользователя не найден" -ForegroundColor Red
+    exit 1
+}
+
+$wallets = [PSCustomObject]@{
+    USD = [PSCustomObject]@{
+        balance = 100000
+    }
+}
+
+$portfolio | Add-Member -MemberType NoteProperty -Name "wallets" -Value $wallets -Force
+
+$portfolios | ConvertTo-Json -Depth 10 | Set-Content ".\data\portfolios.json" -Encoding utf8
+
+Write-Host "Баланс 100000 USD успешно добавлен пользователю demo_user" -ForegroundColor Green
+'@ | Set-Content ".\prepare_demo.ps1" -Encoding utf8
+PS D:\dz2\final\finalproject_Chernov_M26-555> powershell -NoProfile -ExecutionPolicy Bypass -File .\prepare_demo.ps1
+
+PS D:\dz2\final\finalproject_Chernov_M26-555> Get-Content .\data\portfolios.json -Raw
+{
+    "value":  [
+                  {
+                      "user_id":  1,
+                      "wallets":  {
+                                      "USD":  {
+                                                  "balance":  100000
+                                              }
+                                  }
+                  },
+                  {
+                      "user_id":  2,
+                      "wallets":  {
+                                      "USD":  {
+                                                  "balance":  100000
+                                              }
+                                  }
+                  }
+              ],
+    "Count":  2
+}
+PS D:\dz2\final\finalproject_Chernov_M26-555> PowerSession rec demo.cast
+
+PS D:\dz2\final\finalproject_Chernov_M26-555> Write-Host "`n========== USERS ==========" -ForegroundColor Cyan
+
+========== USERS ==========
+PS D:\dz2\final\finalproject_Chernov_M26-555> Get-Content .\data\users.json -Raw
+[
+    {
+        "user_id": 1,
+        "username": "alice",
+        "hashed_password": "30e4a36686c20169c0f8af376a237a5d5e0427e09bd880717abeae46c1f8e4ae",
+        "salt": "f68e674ae5ceaa1313068c0e4886cda1",
+        "registration_date": "2026-11-08T14:19:08.311551"
+    },
+    {
+        "user_id": 2,
+        "username": "demo_user",
+        "hashed_password": "ccd713bbe0739878ea037c7af86e6dd768e07af28db7f3dc9333edbfaca88f8c",
+        "salt": "c1ce23483818e7e89b80f361210e8dec",
+        "registration_date": "2026-11-08T18:46:24.728077"
+    }
+]
+PS D:\dz2\final\finalproject_Chernov_M26-555> Write-Host "`n========== PORTFOLIOS ==========" -ForegroundColor Cyan
+
+========== PORTFOLIOS ==========
+PS D:\dz2\final\finalproject_Chernov_M26-555> Get-Content .\data\portfolios.json -Raw
+{
+    "value":  [
+                  {
+                      "user_id":  1,
+                      "wallets":  {
+                                      "USD":  {
+                                                  "balance":  100000
+                                              }
+                                  }
+                  },
+                  {
+                      "user_id":  2,
+                      "wallets":  {
+                                      "USD":  {
+                                                  "balance":  100000
+                                              }
+                                  }
+                  }
+              ],
+    "Count":  2
+}
+PS D:\dz2\final\finalproject_Chernov_M26-555> Write-Host "`n========== RATES ==========" -ForegroundColor Cyan
+
+========== RATES ==========
+PS D:\dz2\final\finalproject_Chernov_M26-555> Get-Content .\data\rates.json -Raw
+{
+    "pairs": {
+        "EUR_USD": {
+            "rate": 1.1163206072784102,
+            "updated_at": "2026-11-08T12:51:40.743128+00:00",
+            "source": "legacy-cache"
+        },
+        "GBP_USD": {
+            "rate": 1.3377926421404682,
+            "updated_at": "2026-11-08T12:51:40.743128+00:00",
+            "source": "legacy-cache"
+        },
+        "RUB_USD": {
+            "rate": 0.01223323893350623,
+            "updated_at": "2026-11-08T12:51:40.743128+00:00",
+            "source": "legacy-cache"
+        },
+        "BTC_USD": {
+            "rate": 75980.0,
+            "updated_at": "2026-11-08T15:54:58Z",
+            "source": "CoinGecko"
+        },
+        "ETH_USD": {
+            "rate": 2238.4,
+            "updated_at": "2026-11-08T15:54:58Z",
+            "source": "CoinGecko"
+        },
+        "USD_USD": {
+            "rate": 1.0,
+            "updated_at": "2026-11-08T12:51:40.743128+00:00",
+            "source": "legacy-cache"
+        },
+        "SOL_USD": {
+            "rate": 89.6,
+            "updated_at": "2026-11-08T15:54:58Z",
+            "source": "CoinGecko"
+        }
+    },
+    "last_refresh": "2026-11-08T15:55:46Z"
+}
+PS D:\dz2\final\finalproject_Chernov_M26-555> cd D:\dz2\final\finalproject_Chernov_M26-555
+PS D:\dz2\final\finalproject_Chernov_M26-555> $data = Get-Content .\data\portfolios.json -Raw | ConvertFrom-Json
+PS D:\dz2\final\finalproject_Chernov_M26-555> if ($null -ne $data.value) {
+    $portfolios = @($data.value)
+} else {
+    $portfolios = @($data)
+}
+PS D:\dz2\final\finalproject_Chernov_M26-555> $portfolio = $portfolios | Where-Object { [string]$_.user_id -eq "2" } | Select-Object -First 1
+PS D:\dz2\final\finalproject_Chernov_M26-555> if ($null -eq $portfolio) {
+    Write-Host "Портфель demo_user не найден" -ForegroundColor Red
+} else {
+    $portfolio.wallets = [PSCustomObject]@{
+        USD = [PSCustomObject]@{
+            balance = 100000
+        }
+    }
+
+    $json = ConvertTo-Json -InputObject $portfolios -Depth 10
+    Set-Content .\data\portfolios.json -Value $json -Encoding utf8
+
+    Write-Host "Портфели восстановлены, баланс demo_user установлен: 100000 USD" -ForegroundColor Green
+}
+Портфели восстановлены, баланс demo_user установлен: 100000 USD
+PS D:\dz2\final\finalproject_Chernov_M26-555> Get-Content .\data\portfolios.json -Raw
+[
+    {
+        "user_id":  1,
+        "wallets":  {
+                        "USD":  {
+                                    "balance":  100000
+                                }
+                    }
+    },
+    {
+        "user_id":  2,
+        "wallets":  {
+                        "USD":  {
+                                    "balance":  100000
+                                }
+                    }
+    }
+]
+PS D:\dz2\final\finalproject_Chernov_M26-555> uv run python main.py
+>

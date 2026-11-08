@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+﻿from abc import ABC, abstractmethod
 from math import isfinite
 
 
@@ -72,6 +72,12 @@ _CURRENCIES: dict[str, Currency] = {
     "RUB": FiatCurrency("Russian Ruble", "RUB", "Russia"),
     "BTC": CryptoCurrency("Bitcoin", "BTC", "SHA-256", 1.12e12),
     "ETH": CryptoCurrency("Ethereum", "ETH", "Ethash", 4.45e11),
+" SOL": CryptoCurrency(
+    name="Solana",
+    code="SOL",
+    algorithm="Proof of History",
+    market_cap=0,
+),
 }
 
 

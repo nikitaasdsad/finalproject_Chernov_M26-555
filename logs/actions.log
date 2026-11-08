@@ -1,0 +1,32 @@
+INFO 2026-11-08T15:48:52 Начато обновление курсов валют
+INFO 2026-11-08T15:48:55 Получены курсы фиатных валют: 4
+INFO 2026-11-08T15:48:59 Получены курсы криптовалют: 2
+INFO 2026-11-08T15:49:57 Начато обновление курсов валют
+INFO 2026-11-08T15:50:00 Получены курсы фиатных валют: 4
+INFO 2026-11-08T15:50:04 Получены курсы криптовалют: 2
+INFO 2026-11-08T15:51:38 Начато обновление курсов валют
+INFO 2026-11-08T15:51:40 Получены курсы фиатных валют: 4
+INFO 2026-11-08T15:51:43 Получены курсы криптовалют: 2
+INFO 2026-11-08T15:51:43 Обновление завершено. Получено курсов: 6
+INFO 2026-11-08T18:55:45 Начато обновление курсов валют
+INFO 2026-11-08T18:55:45 ExchangeRateApiClient: получено курсов: 4
+INFO 2026-11-08T18:55:46 CoinGeckoClient: получено курсов: 3
+INFO 2026-11-08T18:55:46 Обновление завершено. Получено курсов: 7
+INFO 2026-11-08T18:56:27 BUY user='demo_user' currency='BTC' amount=1000000.0 rate=- base='USD' result=ERROR error_type=TypeError error_message='string indices must be integers, not 'str''
+INFO 2026-11-08T18:56:35 BUY user='demo_user' currency='ABC' amount=1.0 rate=- base='USD' result=ERROR error_type=CurrencyNotFoundError error_message='Неизвестная валюта 'ABC''
+INFO 2026-11-08T19:06:52 BUY user='demo_user' currency='BTC' amount=0.05 rate=- base='USD' result=ERROR error_type=ApiRequestError error_message='Ошибка при обращении к внешнему API: Курс BTC_USD устарел. Выполните команду update-rates.'
+INFO 2026-11-08T19:07:00 Начато обновление курсов валют
+INFO 2026-11-08T19:07:00 ExchangeRateApiClient: получено курсов: 4
+INFO 2026-11-08T19:07:01 CoinGeckoClient: получено курсов: 3
+INFO 2026-11-08T19:07:01 Обновление завершено. Получено курсов: 7
+INFO 2026-11-08T19:07:06 BUY user='demo_user' currency='BTC' amount=0.05 rate=- base='USD' result=OK
+INFO 2026-11-08T19:07:19 SELL user='demo_user' currency='BTC' amount=0.01 rate=- base='USD' result=OK
+INFO 2026-11-08T19:07:26 SELL user='demo_user' currency='BTC' amount=0.04 rate=- base='USD' result=OK
+INFO 2026-11-08T19:09:27 BUY user='demo_user' currency='BTC' amount=0.05 rate=- base='USD' result=OK
+INFO 2026-11-08T19:09:38 SELL user='demo_user' currency='BTC' amount=0.01 rate=- base='USD' result=OK
+INFO 2026-11-08T19:09:58 BUY user='demo_user' currency='BTC' amount=1000000.0 rate=- base='USD' result=ERROR error_type=InsufficientFundsError error_message='Недостаточно средств: доступно 96960.0000 USD, требуется 76000000000.0000 USD'
+INFO 2026-11-08T19:10:05 BUY user='demo_user' currency='ABC' amount=1.0 rate=- base='USD' result=ERROR error_type=CurrencyNotFoundError error_message='Неизвестная валюта 'ABC''
+INFO 2026-11-08T19:10:14 Начато обновление курсов валют
+INFO 2026-11-08T19:10:14 ExchangeRateApiClient: получено курсов: 4
+INFO 2026-11-08T19:10:15 CoinGeckoClient: получено курсов: 3
+INFO 2026-11-08T19:10:15 Обновление завершено. Получено курсов: 7

@@ -27,7 +27,7 @@ class DatabaseManager:
             return default
 
         try:
-            with path.open("r", encoding="utf-8") as file:
+            with path.open("r", encoding="utf-8-sig") as file:
                 return json.load(file)
         except json.JSONDecodeError as error:
             raise ValueError(f"Некорректный JSON-файл: {path}") from error

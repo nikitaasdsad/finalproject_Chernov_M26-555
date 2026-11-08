@@ -147,6 +147,8 @@ class Portfolio:
         "EUR": 1.08,
         "GBP": 1.27,
         "RUB": 0.011,
+        "BTC": 59337.21,
+        "ETH": 3720.0,
     }
 
     def __init__(self, user: User) -> None:

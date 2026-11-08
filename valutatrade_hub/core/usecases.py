@@ -1,4 +1,5 @@
-﻿from datetime import datetime, timedelta
+﻿import math
+from datetime import UTC, datetime
 
 from valutatrade_hub.core.currencies import get_currency
 from valutatrade_hub.core.exceptions import (
@@ -73,26 +74,61 @@ def _save_portfolio(portfolio: Portfolio) -> None:
 
 
 def _get_rate_to_usd(currency_code: str) -> float:
-    get_currency(currency_code)
+    currency_code = currency_code.upper()
 
     if currency_code == "USD":
         return 1.0
 
-    rates = _load_json(RATES_FILE, {})
+    rates_data = _load_json(RATES_FILE, {})
+    rates = rates_data.get("pairs", rates_data)
     pair = f"{currency_code}_USD"
     cached = rates.get(pair)
 
-    if isinstance(cached, dict):
-        return float(cached["rate"])
+    if cached is None:
+        raise ApiRequestError(
+            f"Курс {pair} отсутствует. Выполните команду update-rates."
+        )
 
-    if isinstance(cached, (int, float)):
-        return float(cached)
+    if not isinstance(cached, dict):
+        raise ApiRequestError(f"Некорректные данные курса {pair}.")
 
-    if pair in DEFAULT_RATES:
-        return DEFAULT_RATES[pair]
+    updated_at = cached.get("updated_at")
 
-    raise ApiRequestError(f"локальный курс {currency_code}→USD недоступен")
+    if not updated_at:
+        raise ApiRequestError(f"У курса {pair} отсутствует дата обновления.")
 
+    try:
+        updated_time = datetime.fromisoformat(
+            updated_at.replace("Z", "+00:00")
+        )
+        if updated_time.tzinfo is None:
+            updated_time = updated_time.replace(tzinfo=UTC)
+        else:
+            updated_time = updated_time.astimezone(UTC)
+    except ValueError as error:
+        raise ApiRequestError(
+            f"Некорректная дата обновления курса {pair}."
+        ) from error
+
+    age = (datetime.now(UTC) - updated_time).total_seconds()
+    ttl = settings.get("rates_ttl_seconds", 300)
+
+    if age > ttl:
+        raise ApiRequestError(
+            f"Курс {pair} устарел. Выполните команду update-rates."
+        )
+
+    try:
+        rate = float(cached["rate"])
+    except (TypeError, ValueError) as error:
+        raise ApiRequestError(
+            f"Некорректное значение курса {pair}."
+        ) from error
+
+    if not math.isfinite(rate) or rate <= 0:
+        raise ApiRequestError(f"Некорректное значение курса {pair}.")
+
+    return rate
 
 def register(username: str, password: str) -> str:
     if not isinstance(username, str) or not username.strip():
@@ -278,61 +314,47 @@ def sell(currency: str, amount: float) -> str:
         f"Оценочная выручка: {revenue:,.2f} USD"
     )
 
-
 def get_rate(from_currency: str, to_currency: str) -> str:
     source = get_currency(from_currency).code
     target = get_currency(to_currency).code
 
-    rates = _load_json(RATES_FILE, {})
-    pair = f"{source}_{target}"
-    now = datetime.now()
-    ttl = settings.get("rates_ttl_seconds", 300)
-
-    cached = rates.get(pair)
-
     if source == target:
-        rate = 1.0
-        updated_at = now
-    elif isinstance(cached, dict):
-        cached_time = datetime.fromisoformat(cached["updated_at"])
+        return (
+            f"Курс {source}→{target}: 1.00000000\n"
+            f"Обратный курс {target}→{source}: 1.00000000"
+        )
 
-        if now - cached_time <= timedelta(seconds=ttl):
-            rate = float(cached["rate"])
-            updated_at = cached_time
-        else:
-            rate = _get_rate_to_usd(source) / _get_rate_to_usd(target)
-            updated_at = now
-    else:
-        reverse_pair = f"{target}_{source}"
-        reverse_cached = rates.get(reverse_pair)
+    source_rate = _get_rate_to_usd(source)
+    target_rate = _get_rate_to_usd(target)
 
-        if isinstance(reverse_cached, dict):
-            cached_time = datetime.fromisoformat(reverse_cached["updated_at"])
-
-            if now - cached_time <= timedelta(seconds=ttl):
-                rate = 1 / float(reverse_cached["rate"])
-                updated_at = cached_time
-            else:
-                rate = _get_rate_to_usd(source) / _get_rate_to_usd(target)
-                updated_at = now
-        else:
-            rate = _get_rate_to_usd(source) / _get_rate_to_usd(target)
-            updated_at = now
-
-    if source != target and (
-        not isinstance(cached, dict)
-        or now - datetime.fromisoformat(cached["updated_at"]) > timedelta(seconds=ttl)
-    ):
-        rates[pair] = {
-            "rate": rate,
-            "updated_at": updated_at.isoformat(),
-        }
-        _save_json(RATES_FILE, rates)
-
+    rate = source_rate / target_rate
     reverse_rate = 1 / rate
+
+    rates_data = _load_json(RATES_FILE, {})
+    pairs = rates_data.get("pairs", rates_data)
+
+    timestamps = []
+
+    for code in (source, target):
+        if code == "USD":
+            continue
+
+        pair_data = pairs.get(f"{code}_USD")
+
+        if isinstance(pair_data, dict) and pair_data.get("updated_at"):
+            timestamp = datetime.fromisoformat(
+                pair_data["updated_at"].replace("Z", "+00:00")
+            )
+
+            if timestamp.tzinfo is None:
+                timestamp = timestamp.replace(tzinfo=UTC)
+
+            timestamps.append(timestamp)
+
+    updated_at = min(timestamps) if timestamps else datetime.now(UTC)
 
     return (
         f"Курс {source}→{target}: {rate:.8f} "
-        f"(обновлено: {updated_at.strftime('%Y-%m-%d %H:%M:%S')})\n"
+        f"(обновлено: {updated_at.strftime('%Y-%m-%d %H:%M:%S UTC')})\n"
         f"Обратный курс {target}→{source}: {reverse_rate:.8f}"
     )
